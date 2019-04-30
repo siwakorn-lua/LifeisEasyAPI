@@ -7,6 +7,7 @@ require('dotenv').config()
 app.get('/', (req, res) => res.send('Hello World!'))
 app.get('/login', async (req,res) => {
     const ticket = req.query.ticket
+    consolg.log('Received ticket',ticket)
     const result = await axios.get('https://account.it.chula.ac.th/serviceValidation',{
         headers:{
             DeeAppId:process.env.APP_ID,
