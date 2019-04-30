@@ -7,14 +7,19 @@ require('dotenv').config()
 app.get('/', (req, res) => res.send('Hello World!'))
 app.get('/login', async (req,res) => {
     const ticket = req.query.ticket
-    consolg.log('Received ticket',ticket)
-    const result = await axios.get('https://account.it.chula.ac.th/serviceValidation',{
-        headers:{
-            DeeAppId:process.env.APP_ID,
-            DeeAppSecret:process.env.APP_SECRET,
-            DeeTicket:ticket
-        }
-    })
-    return res.json(result.data)
+    console.log('Received ticket',ticket)
+    try {
+        const result = await axios.get('https://account.it.chula.ac.th/serviceValidation',{
+            headers:{
+                DeeAppId:process.env.APP_ID,
+                DeeAppSecret:process.env.APP_SECRET,
+                DeeTicket:ticket
+            }
+        })
+        return res.json(result.data)
+    } catch (error) {
+        console.log(error)
+    }
+    
 })
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
