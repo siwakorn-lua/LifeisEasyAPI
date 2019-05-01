@@ -94,6 +94,7 @@ app.post('/employ', (req,res) => {
 })
 app.get('/me', async (req,res)=>{
     const profile = req.user
-    const job = Job.find({providerID:req.user._id})
-    const employment = Job.find({customerID:req.user._id})
+    const job = await Job.find({providerID:req.user._id})
+    const employment = await Job.find({customerID:req.user._id})
+    return res.json({profile,job,employment})
 })
