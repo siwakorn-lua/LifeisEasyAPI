@@ -39,7 +39,7 @@ app.get('/login', async (req,res) => {
         User.findOneAndUpdate(
             {uid},
             {uid,username,gecos,email,ticket}, 
-            {upsert:true}, 
+            {upsert:true,useFindAndModify:true}, 
             function(err, doc){
                 if (err) return res.send(500, { error: err })
                 return res.json(doc)
