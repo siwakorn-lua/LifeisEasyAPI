@@ -1,6 +1,7 @@
 const axios = require('axios')
 const express = require('express')
 const mongoose = require('mongoose')
+const bodyParser = require('body-parser')
 const app = express()
 const port = process.env.PORT
 require('dotenv').config()
@@ -21,7 +22,18 @@ const UserSchema = new mongoose.Schema({
     "ticket": String
 })
 const User = mongoose.model('User', UserSchema);
+const JobSchema = new mongoose.Schema({
+    "name": String,
+    "price": Number,
+    "date": Date,
+    "provider":String,
+    "customer":String
+})
+JobSchema.index({ name: 1, date: 1 })
+const Job = mongoose.model('Job', JobSchema)
 
+
+app.use(bodyParser.json())
 app.get('/', (req, res) => res.send('Hello World!'))
 app.get('/login', async (req,res) => {
     const ticket = req.query.ticket
@@ -48,4 +60,25 @@ app.get('/login', async (req,res) => {
         console.log(error)
     }  
 })
-
+app.use((req,res,next)=>{
+    const ticket = req.query.ticket
+    User.findOne({ticket},(err,doc)=>{
+        if (err) return res.send(500, { error: err })
+        req.user = doc
+        next()
+    })
+})
+app.get('/job', (req,res) => {
+    Job.find({customer:null},(err,doc)=>{
+        if (err) return res.send(500, { error: err })
+        res.json(doc)
+    })
+})
+app.post('/job', (req,res) => {
+    const {name,price,date} = req.body
+    const job = new Job({name,price,date,provider:req.user.name,customer:null})
+    job.save(err => {
+        if (err) return res.send(500, { error: err })
+        return res.json({ok:true})
+    })
+})
