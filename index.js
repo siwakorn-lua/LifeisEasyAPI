@@ -27,7 +27,9 @@ const JobSchema = new mongoose.Schema({
     "price": Number,
     "date": Date,
     "provider":String,
-    "customer":String
+    "providerID":String,
+    "customer":String,
+    "customerID":String
 })
 JobSchema.index({ name: 1, date: 1 })
 const Job = mongoose.model('Job', JobSchema)
@@ -58,6 +60,7 @@ app.get('/login', async (req,res) => {
             })
     } catch (error) {
         console.log(error)
+        return res.send(500, {error})
     }  
 })
 app.use((req,res,next)=>{
@@ -69,16 +72,28 @@ app.use((req,res,next)=>{
     })
 })
 app.get('/job', (req,res) => {
-    Job.find({customer:null},(err,doc)=>{
+    Job.find({customer:null,customerID:null},(err,doc)=>{
         if (err) return res.send(500, { error: err })
         res.json(doc)
     })
 })
 app.post('/job', (req,res) => {
     const {name,price,date} = req.body
-    const job = new Job({name,price,date,provider:req.user.name,customer:null})
+    const job = new Job({name,price,date,provider:req.user.name,providerID:req.user._id,customer:null,customerID:null})
     job.save(err => {
         if (err) return res.send(500, { error: err })
         return res.json({ok:true})
     })
+})
+app.post('/employ', (req,res) => {
+    const jobID = req.body.id
+    Job.findByIdAndUpdate(jobID,{"$set":{customer:req.user.name,customerID:req.user.id}},(err,result)=>{
+        if (err) return res.send(500, { error: err })
+        return res.json({ok:true})
+    })
+})
+app.get('/me', async (req,res)=>{
+    const profile = req.user
+    const job = Job.find({providerID:req.user._id})
+    const employment = Job.find({customerID:req.user._id})
 })
