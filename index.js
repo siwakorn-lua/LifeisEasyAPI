@@ -31,7 +31,7 @@ const JobSchema = new mongoose.Schema({
     "customer":String,
     "customerID":String
 })
-JobSchema.index({ name: 1, date: 1 })
+JobSchema.index({ name: 1, date: 1 },{unique: true})
 const Job = mongoose.model('Job', JobSchema)
 
 
