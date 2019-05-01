@@ -36,6 +36,7 @@ const Job = mongoose.model('Job', JobSchema)
 
 
 app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 app.get('/', (req, res) => res.send('Hello World!'))
 app.get('/login', async (req,res) => {
     const ticket = req.query.ticket
@@ -79,7 +80,7 @@ app.get('/job', (req,res) => {
 })
 app.post('/job', (req,res) => {
     const {name,price,date} = req.body
-    const job = new Job({name,price,date,provider:req.user.name,providerID:req.user._id,customer:null,customerID:null})
+    const job = new Job({name,price,date,provider:req.user.gecos,providerID:req.user._id,customer:null,customerID:null})
     job.save(err => {
         if (err) return res.send(500, { error: err })
         return res.json({ok:true})
@@ -87,7 +88,7 @@ app.post('/job', (req,res) => {
 })
 app.post('/employ', (req,res) => {
     const jobID = req.body.id
-    Job.findByIdAndUpdate(jobID,{"$set":{customer:req.user.name,customerID:req.user.id}},(err,result)=>{
+    Job.findByIdAndUpdate(jobID,{"$set":{customer:req.user.gecos,customerID:req.user.id}},(err,result)=>{
         if (err) return res.send(500, { error: err })
         return res.json({ok:true})
     })
