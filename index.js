@@ -29,7 +29,8 @@ const JobSchema = new mongoose.Schema({
     "provider":String,
     "providerID":String,
     "customer":String,
-    "customerID":String
+    "customerID":String,
+    "detail":String
 })
 JobSchema.index({ name: 1, date: 1 },{unique: true})
 const Job = mongoose.model('Job', JobSchema)
@@ -73,14 +74,14 @@ app.use((req,res,next)=>{
     })
 })
 app.get('/job', (req,res) => {
-    Job.find({customer:null,customerID:null},(err,doc)=>{
+    Job.find({customer:null,customerID:null,providerID:{"$ne":req.user._id}},(err,doc)=>{
         if (err) return res.send(500, { error: err })
         res.json(doc)
     })
 })
 app.post('/job', (req,res) => {
-    const {name,price,date} = req.body
-    const job = new Job({name,price,date,provider:req.user.gecos,providerID:req.user._id,customer:null,customerID:null})
+    const {name,price,date,detail} = req.body
+    const job = new Job({name,price,date,detail,provider:req.user.gecos,providerID:req.user._id,customer:null,customerID:null})
     job.save(err => {
         if (err) return res.send(500, { error: err })
         return res.json({ok:true})
